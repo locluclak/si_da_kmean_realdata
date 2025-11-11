@@ -49,9 +49,11 @@ def test_statistic(X_vec, Xt, ns, nt, d, n_clusters, Sigma, labels_all_obs,retur
     eta = np.vstack((np.zeros((ns*d, 1)), eta_sign))
     etaTXvec = np.dot(eta.T, X_vec)
 
-    etaT_Sigma_eta = np.dot(np.dot(eta.T, Sigma), eta)
-    b = np.dot(np.dot(Sigma, eta), np.linalg.inv(etaT_Sigma_eta))
-    a = np.dot(np.identity(X_vec.shape[0]) - np.dot(b, eta.T), X_vec)
+    Sigma_eta = Sigma @ eta
+    etaT_Sigma_eta = eta.T @ Sigma_eta
+
+    b = np.dot(Sigma_eta, np.linalg.inv(etaT_Sigma_eta))
+    a = X_vec - b @ (eta.T @ X_vec)
     z = etaTXvec.item()
     
     return {
@@ -301,7 +303,9 @@ def oc_test(final_model, Xs, Xt, Sigma, K, device, _=None):
     try:
         a, b, eta_tmp, etaTX, etaT_Sigma_eta, c1, c2, c1_obs, c2_obs, sign = test_statistic(X_vec, Xt, ns, nt, d, K, Sigma, labels_all_obs).values()    
     except Exception as e:
-        print("test statistic is none", e) 
+        import traceback
+        print("test statistic is none", e)
+        traceback.print_exc()  
         return None
     a_2d = a.reshape(n, d)
     b_2d = b.reshape(n, d)
