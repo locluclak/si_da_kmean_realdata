@@ -2,7 +2,7 @@ import numpy as np
 from models.wdgrl import WDGRL
 import pandas as pd
 import statisticaltest_cluster_da as cda
-from scipy.linalg import block_diag
+from scipy import sparse
 import cv2
 
 from torchvision import datasets, transforms
@@ -86,7 +86,7 @@ final_model.load_model("logs\\20251111-220822-mnist-usps")
 # X_target = X_target.to_numpy(dtype=np.float64)
 
 iterations = 30
-log_dir = "logs/selective_inference_log/log_realdata/mnist_usps"
+log_dir = "logs/selective_inference_log/mnist_usps"
 
 for i in range(iterations):
     X_source = X_source[np.random.choice(X_source.shape[0], 150, replace=False)]
@@ -98,12 +98,12 @@ for i in range(iterations):
     cov_source = np.cov(X_source, rowvar=False, bias=False)
     cov_target = np.cov(X_target, rowvar=False, bias=False)
 
-    cov_block = block_diag(cov_source, cov_target)
+    # cov_block = block_diag((cov_source, cov_target),format='csr')
     Ins = np.eye(ns)
     Int = np.eye(nt)
-    cov_vecXs = np.kron(cov_source, Ins)
-    cov_vecXt = np.kron(cov_target, Int)
-    Sigma = block_diag(cov_vecXs, cov_vecXt)
+    cov_vecXs = sparse.kron(cov_source, sparse.eye(ns), format='csr')
+    cov_vecXt = sparse.kron(cov_target, sparse.eye(nt), format='csr')
+    Sigma = sparse.block_diag((cov_vecXs, cov_vecXt), format='csr')
 
     oc_pvalue = cda.oc_test(final_model=final_model, Xs=X_source, Xt=X_target, Sigma=Sigma, K=K, device=device)
     with open(f"{log_dir}/obesity_pvalue_oc.txt", "a") as f:
