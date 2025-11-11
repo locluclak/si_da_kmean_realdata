@@ -1,0 +1,2 @@
+- MNIST Dataset: https://www.kaggle.com/datasets/hojjatk/mnist-dataset
+- USPS dataset: https://www.kaggle.com/datasets/bistaumanga/usps-dataset

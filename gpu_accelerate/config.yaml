@@ -1,0 +1,50 @@
+experiment:
+  seed: null
+  model_random_state: 42
+  n_clusters: 3
+  check_ari: true # log ari and silhouette
+
+# # 2 clusters
+# data:
+#   ns: 2000
+#   nt: 100
+#   n_features: 16
+#   dist: 2
+#   std_source: [1.0, 1.5]
+#   std_target: [1.0, 2.0]
+#   shift: 7
+#   scaler: StandardScaler
+#   data_gen_method: gen_domain_adaptation_data2  # Options: gen_domain_adaptation_data2, gen_domain_adaptation_data_k
+
+# # k clusters
+data:
+  ns: 2000
+  nt: 60
+  n_features: 5
+  dist: 1.5 # distance between clusters
+  std_source: [0.25, 0.5, 1] # scalar or List len() = n_clusters
+  std_target: [0.25, 0.5, 1]
+  shift: 3
+  scaler: StandardScaler
+  data_gen_method: gen_domain_adaptation_data_k 
+
+model:
+  encoder_hidden_dims: [500, 100, 50]
+  decoder_hidden_dims: [50, 100, 500] # not used
+  critic_hidden_dims: [100]
+  alpha1: 0.0001
+  alpha2: 0.0001
+  use_decoder: false
+
+training:
+  num_epochs: 6000
+  batch_size: 32
+  dc_iter: 5
+  gamma: 10.0
+  delta: 0.5 # delta controls the decoder - ignore if use_decoder = false
+  lambda: 1.0
+  # early stopping is not complete - set false
+  early_stopping: false
+  patience: 40
+  min_delta: !!float 1e-5
+  verbose: false
